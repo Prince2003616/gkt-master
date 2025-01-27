@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
     fetchCertificateBySlug, 
     CertificateData, 
@@ -11,6 +11,7 @@ import Footer from '@/app/components/Footer/Footer';
 
 const SubCertificate: React.FC = () => {
     const { slug } = useParams<{ slug: string }>();
+    const navigate = useNavigate();
     const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
     const [error, setError] = useState<string | null>(null); // State to hold error messages
 
@@ -39,6 +40,10 @@ const SubCertificate: React.FC = () => {
 
         fetchCertificateData();
     }, [slug]);
+
+    const handleViewCourseDetails = (courseSlug: string) => {
+        navigate(`/course/${courseSlug}`);
+    };
 
     if (error) {
         return <div className="text-red-500">{error}</div>; // Display error message
@@ -156,7 +161,10 @@ const SubCertificate: React.FC = () => {
                                             className="h-[16em] w-full border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.3)] text-white p-[1em] flex flex-col gap-[0.75em] backdrop-blur-[12px] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
                                         >
                                             <h4 className="text-[2em] font-medium">{item.Course.title}</h4>
-                                            <button className="h-fit w-fit px-[1em] py-[0.25em] border-[1px] rounded-full flex justify-center items-center gap-[0.5em] overflow-hidden group hover:bg-purple-500/20 transition-all duration-300">
+                                            <button 
+                                                onClick={() => handleViewCourseDetails(item.Course.slug)}
+                                                className="h-fit w-fit px-[1em] py-[0.25em] border-[1px] rounded-full flex justify-center items-center gap-[0.5em] overflow-hidden group hover:bg-purple-500/20 transition-all duration-300 cursor-pointer"
+                                            >
                                                 <span>View Details</span>
                                                 <svg 
                                                     className="w-6 h-6 group-hover:translate-x-[10%] duration-300" 

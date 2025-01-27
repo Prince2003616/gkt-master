@@ -143,3 +143,15 @@ export const fetchCertificateBySlug = async (slug: string): Promise<CertificateD
     console.log('API Response:', response.data);
     return response.data.certificateCourses[0];
 };
+
+export const fetchCourseBySlug = async (slug: string) => {
+  try {
+    const response = await fetch(`/api/courses/${slug}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch course data');
+    }
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+};

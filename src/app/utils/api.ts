@@ -20,7 +20,7 @@ export interface CourseData {
 
 export const fetchCourses = async (): Promise<CourseData[]> => {
   try {
-    const response = await fetch("http://stu.globalknowledgetech.com:5001/lms/course");
+    const response = await fetch("http://stu.globalknowledgetech.com:5002/lms/course");
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Failed to fetch courses:", {
@@ -68,7 +68,7 @@ export interface CertificationData {
 export const fetchCertifications = async (): Promise<CertificationData[]> => {
   try {
     const response = await fetch(
-      "http://stu.globalknowledgetech.com:5001/lms/certificate-course",
+      "http://stu.globalknowledgetech.com:5002/lms/certificate-course",
       {
         method: "GET",
         headers: {
@@ -102,7 +102,7 @@ export const fetchCertifications = async (): Promise<CertificationData[]> => {
 
 export const fetchCoursesByPartner = async () => {
   try {
-    const response = await fetch("http://stu.globalknowledgetech.com:5001/lms/course");
+    const response = await fetch("http://stu.globalknowledgetech.com:5002/lms/course");
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Failed to fetch courses by partner:", {
@@ -136,7 +136,7 @@ export const fetchCoursesByPartner = async () => {
 };
 
 const axiosPublic = axios.create({
-  baseURL: "http://stu.globalknowledgetech.com:5001",
+  baseURL: "http://stu.globalknowledgetech.com:5002",
   headers: {
     "Content-Type": "application/json",
   },

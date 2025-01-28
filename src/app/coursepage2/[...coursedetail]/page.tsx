@@ -40,7 +40,7 @@ export default function Home() {
     const [courseData, setCourseData] = useState<CourseData | null>(null);
 
   const axiosPublic = axios.create({
-    baseURL: "http://stu.globalknowledgetech.com:5001",
+    baseURL: "http://stu.globalknowledgetech.com:5002",
     headers: {
       "Content-Type": "application/json",
     },

@@ -24,7 +24,7 @@ const Test: React.FC<TestProps> = ({ slugname }) => {
     useEffect(() => {
         const fetchCourseDetails = async (slug: string) => {
             const axiosPublic: AxiosInstance = axios.create({
-                baseURL: process.env.NEXT_PUBLIC_API_URL || "http://stu.globalknowledgetech.com:5001",
+                baseURL:"http://stu.globalknowledgetech.com:5002",
                 headers: {
                   "Content-Type": "application/json",
                 },

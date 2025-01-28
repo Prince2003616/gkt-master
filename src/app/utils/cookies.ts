@@ -37,3 +37,4 @@ export const setMultipleCookies = (cookies: CookieObject, days: number) => {
         setCookie(key, value, days);
     }
 };
+

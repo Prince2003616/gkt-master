@@ -18,7 +18,7 @@ const Path: React.FC<PathProps> = ({ slugname }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const axiosPublic: AxiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://stu.globalknowledgetech.com:5001",
+    baseURL:"http://stu.globalknowledgetech.com:5002",
     headers: {
       "Content-Type": "application/json",
     },

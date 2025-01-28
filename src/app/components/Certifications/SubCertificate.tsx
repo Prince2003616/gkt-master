@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRouter } from 'next/navigation';
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { setCookie, getCookie } from "@/app/utils/cookies";
 import {
     fetchCertificateBySlug,
     CertificateData,
@@ -24,6 +25,13 @@ const SubCertificate: React.FC = () => {
             if (slug) {
                 try {
                     const data = await fetchCertificateBySlug(slug);
+                    const cookiesToSet = {
+                        visited_certificate: data.title,
+                        visited_time: new Date().toISOString(),
+                        message: "Visited certificate page",
+                      };
+                      setCookie("visited_certificate", JSON.stringify(cookiesToSet), 7);
+                      console.log(cookiesToSet.message);
                     if (data) {
                         setCertificateData(data);
                     } else {

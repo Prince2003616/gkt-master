@@ -1,5 +1,5 @@
 "use client";
-import React, { JSX, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaCloud, FaShieldAlt, FaBoxes, FaDesktop } from "react-icons/fa";
 
 // Define tools data separately

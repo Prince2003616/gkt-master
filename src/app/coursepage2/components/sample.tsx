@@ -26,8 +26,8 @@ const BootcampTopics: React.FC = () => {
       try {
         const data = await fetchCourseData();
         setCourseData(data); // Assuming data is an array of topics
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError((err as Error).message);
       }
     };
     fetchData();

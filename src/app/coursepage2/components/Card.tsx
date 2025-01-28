@@ -99,7 +99,7 @@ const CardSection: React.FC = () => {
           isSectionVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
-        <h2 className="text-3xl font-bold mb-8 text-center">Why Join This Program?</h2>
+        <h2 className="text-3xl font-bold mb-8 text-center text-black">Why Join This Program?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-6">
           {cardDetails.map((card, index) => (
             <Card

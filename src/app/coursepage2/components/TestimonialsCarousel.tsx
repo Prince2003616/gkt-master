@@ -60,7 +60,7 @@ const TestimonialsCarousel: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-gray-300 text-sm italic leading-relaxed text-wrap mt-1">
-                  "{testimonial.feedback}"
+                  &ldquo;{testimonial.feedback}&rdquo;
                 </p>
               </div>
             </div>

@@ -12,20 +12,7 @@ import { useCourseManagement } from "@/app/hooks/useCourseManagement";
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import SubCertificate from './components/Certifications/SubCertificate';
-// import FAQSection from "@/app/course_components/components/FAQSection";
-// import Path from "@/app/course_components/components/path";
-// import TestimonialsCarousel from "@/app/course_components/components/TestimonialsCarousel";
-// import CardSection from "@/app/course_components/components/Card";
-// import Test from "@/app/course_components/components/test";
-// import EligibilityCriteria from "@/app/course_components/components/EligilityCriteria";
-// import Tools from "@/app/course_components/components/Tools";
-// import ScrollingCompany from "@/app/course_components/components/ScrollingComapany";
-// import FeatureAndRolesSection from "@/app/course_components/components/FeatureAndRolesSection";
-// import ScrollingImages from "@/app/course_components/components/ScrollingImages";
-// import CohortInfo from "@/app/course_components/components/CohortInfo";
-// import SessionForm from "@/app/course_components/components/SessionForm";
-// import MainHeader from "@/app/course_components/components/MainHeader";
-import { setMultipleCookies } from "@/app/course_components/utils/cookies";
+import { setMultipleCookies, getCookie } from "@/app/utils/cookies"; // Import the cookie function
 
 export interface CourseData {
     id: string;
@@ -51,10 +38,8 @@ export default function Home() {
 
   useEffect(() => {
     const fetchCourseData = async () => {
-      if (slug) {
         try {
-          const response = await fetch(`/api/courses/${slug}`);
-          const data = await response.json();
+         
           
           // Set multiple cookies
           const cookiesToSet = {
@@ -63,18 +48,24 @@ export default function Home() {
             endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
             startTime: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            visited_course: data.title || 'Unknown Course',
+            visited_course:  'All Course',
             visited_course_time: new Date().toISOString(),
             message: "Cookie created successfully"
           };
+          
+          console.log("Setting cookies:", cookiesToSet);
           setMultipleCookies(cookiesToSet, 7); // Set cookies to expire in 7 days
 
           // Print message to console
           console.log(cookiesToSet.message);
+          
+          // Verify cookies
+          const cookieTitle = getCookie('visited_course');
+          console.log("Cookie Title after set:", cookieTitle);
         } catch (error) {
           console.error('Error fetching course data:', error);
         }
-      }
+      
     };
 
     fetchCourseData();

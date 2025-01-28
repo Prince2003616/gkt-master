@@ -15,9 +15,9 @@ const ScrollingCompany: React.FC = () => {
   const repeatedImages = [...images, ...images, ...images];
 
   return (
-    <div className="overflow-hidden bg-white-100 m-0 p-0">
+    <div className="overflow-hidden bg-white-100 m-5 p-2">
       {/* Heading */}
-      <h2 className="text-left text-2xl font-bold mb-4 px-6">Top Hiring Companies</h2>
+      <h2 className="text-left text-2xl text-black font-bold mb-4 px-6">Top Hiring Companies</h2>
 
       <div className="flex animate-scroll">
         {repeatedImages.map((image, index) => (

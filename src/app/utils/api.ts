@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 interface Partner {
   partnerId: number;
@@ -19,9 +19,29 @@ export interface CourseData {
 }
 
 export const fetchCourses = async (): Promise<CourseData[]> => {
-  const response = await fetch('http://stu.globalknowledgetech.com:5001/lms/course');
-  const data = await response.json();
-  return data.courses;
+  try {
+    const response = await fetch("http://stu.globalknowledgetech.com:5001/lms/course");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch courses:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorText,
+      });
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data || !Array.isArray(data.courses)) {
+      console.error("Invalid API response for courses:", data);
+      return [];
+    }
+
+    return data.courses;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    return [];
+  }
 };
 
 interface CertificationPartner {
@@ -47,47 +67,60 @@ export interface CertificationData {
 
 export const fetchCertifications = async (): Promise<CertificationData[]> => {
   try {
-    const response = await fetch('http://stu.globalknowledgetech.com:5001/lms/certificate-course', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetch(
+      "http://stu.globalknowledgetech.com:5001/lms/certificate-course",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Response not OK:', {
+      console.error("Response not OK:", {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: errorText,
       });
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Raw API response:', data); // Log the raw response
-
-    // Check if data exists and has the expected structure
     if (!data || !Array.isArray(data.certificateCourses)) {
-      console.error('API response does not contain an array of certificateCourses:', data);
+      console.error("API response does not contain an array of certificateCourses:", data);
       return [];
     }
 
-    return data.certificateCourses; // Return the certificateCourses array
+    return data.certificateCourses;
   } catch (error) {
-    console.error('Error fetching certifications:', error);
+    console.error("Error fetching certifications:", error);
     return [];
   }
 };
 
 export const fetchCoursesByPartner = async () => {
   try {
-    const response = await fetch('http://stu.globalknowledgetech.com:5001/lms/course');
+    const response = await fetch("http://stu.globalknowledgetech.com:5001/lms/course");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch courses by partner:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorText,
+      });
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
     const data = await response.json();
-    
-    // Group courses by partner
+    if (!data || !Array.isArray(data.courses)) {
+      console.error("Invalid API response for courses by partner:", data);
+      return {};
+    }
+
     const groupedCourses = data.courses.reduce((acc: Record<string, CourseData[]>, course: CourseData) => {
-      const partnerName = course.Partner?.partnerName || 'Other';
+      const partnerName = course.Partner?.partnerName || "Other";
       if (!acc[partnerName]) {
         acc[partnerName] = [];
       }
@@ -97,7 +130,7 @@ export const fetchCoursesByPartner = async () => {
 
     return groupedCourses;
   } catch (error) {
-    console.error('Error fetching courses by partner:', error);
+    console.error("Error fetching courses by partner:", error);
     return {};
   }
 };
@@ -110,48 +143,61 @@ const axiosPublic = axios.create({
 });
 
 export interface Course {
-    courseId: number;
-    title: string;
-    description: string;
-    slug: string;
+  courseId: number;
+  title: string;
+  description: string;
+  slug: string;
 }
 
 export interface CertificateCourseItem {
-    certificateCourseItemId: number;
-    courseId: number;
-    Course: Course;
+  certificateCourseItemId: number;
+  courseId: number;
+  Course: Course;
 }
 
 export interface CertificateCourseCostPlan {
-    certificateCourseCostPlanId: number;
-    certificateCourseId: number;
-    CertificateCourseItems: CertificateCourseItem[];
+  certificateCourseCostPlanId: number;
+  certificateCourseId: number;
+  CertificateCourseItems: CertificateCourseItem[];
 }
 
 export interface CertificateData {
-    title: string;
-    description: string | null;
-    CertificateCourseCostPlans: CertificateCourseCostPlan[];
+  title: string;
+  description: string | null;
+  CertificateCourseCostPlans: CertificateCourseCostPlan[];
 }
 
 export const fetchCertificateBySlug = async (slug: string): Promise<CertificateData> => {
+  try {
     const response = await axiosPublic.get("/lms/certificate-course", {
-        params: {
-            slug: slug
-        }
+      params: {
+        slug: slug,
+      },
     });
-    console.log('API Response:', response.data);
+
+    if (!response.data || !Array.isArray(response.data.certificateCourses)) {
+      console.error("Invalid API response for certificate by slug:", response.data);
+      throw new Error("Invalid API response structure");
+    }
+
+    console.log("API Response:", response.data);
     return response.data.certificateCourses[0];
+  } catch (error) {
+    console.error("Error fetching certificate by slug:", error);
+    throw error;
+  }
 };
 
 export const fetchCourseBySlug = async (slug: string) => {
   try {
     const response = await fetch(`/api/courses/${slug}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch course data');
+      throw new Error("Failed to fetch course data");
     }
+
     return await response.json();
   } catch (error) {
+    console.error("Error fetching course by slug:", error);
     throw error;
   }
 };

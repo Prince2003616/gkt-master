@@ -1,77 +1,106 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import axios, { AxiosInstance } from "axios";
 
-interface Section {
+type Section = {
   name: string;
   subtitle: string;
-}
-
-interface CourseData {
-  id: string;
-  title: string;
-  courseCode: string;
-  description: string;
-  courseContentDetails: string;
-  metaDescription: string;
-}
-
-interface PathProps {
-  courseData: CourseData | null;
-}
-
-const fetchCourseDetails = async (slug: string): Promise<Section[]> => {
-  const axiosInstance = axios.create({
-    baseURL: "http://stu.globalknowledgetech.com:5001",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  try {
-    const response = await axiosInstance.get("/lms/course-details", {
-      params: { slug },
-    });
-
-    const modules =
-      response.data?.courses?.[0]?.CourseContent?.courseContent?.course?.courseDetails?.content?.modules || [];
-
-    if (!Array.isArray(modules)) {
-      throw new Error("Modules data not found or invalid structure");
-    }
-
-    return modules.map((module: any) => ({
-      name: module.name?.trim() || "Untitled Module",
-      subtitle: module.name?.trim() || "Untitled Module",
-    }));
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || "Failed to fetch course details");
-    } else {
-      throw new Error("An unexpected error occurred");
-    }
-  }
 };
 
-const Path: React.FC<PathProps> = ({ courseData }) => {
+type PathProps = {
+  slugname: string | string[] | undefined;
+};
+
+const Path: React.FC<PathProps> = ({ slugname }) => {
   const [sections, setSections] = useState<Section[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const axiosPublic: AxiosInstance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://stu.globalknowledgetech.com:5001",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCourseData = async () => {
+      if (!slugname) {
+        setError("No course slug provided");
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const data = await fetchCourseDetails("prompt-engineering-for-gen-ai");
-        setSections(data);
+        const response = await axiosPublic.get("/lms/course-details", {
+          params: { slug: slugname },
+        });
+
+        console.log("Full API Response:", response.data);
+
+        const modules =
+          response.data?.courses?.[0]?.CourseContent?.courseContent?.course?.courseDetails?.content?.modules || [];
+
+        if (!Array.isArray(modules) || modules.length === 0) {
+          setError("No modules found in course content");
+          return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const processedSections = modules.map((module: any) => ({
+          name: module.name?.trim() || "Untitled Module",
+          subtitle: module.name?.trim() || "Untitled Module",
+        }));
+
+        setSections(processedSections);
       } catch (err) {
-        setError((err as Error).message);
+        console.error("Error fetching course data:", err);
+        setError("Failed to fetch course data. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchCourseData();
+  }, [slugname]);
 
-  const handleTitleClick = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index);
-  };
+  const TimelineItem: React.FC<{ section: Section; isActive: boolean; onClick: () => void }> = ({
+    section,
+    isActive,
+    onClick,
+  }) => (
+    <li
+      onClick={onClick}
+      className={`relative cursor-pointer transition-all duration-300 ${
+        isActive ? "text-blue-900 bg-blue-100 rounded-lg p-4" : "text-gray-800"
+      }`}
+    >
+      <div
+        className={`absolute left-[-14px] h-2 w-2 rounded-full top-5 transition-all duration-300 ${
+          isActive ? "bg-blue-500" : "bg-gray-400"
+        }`}
+      />
+      <div className="ml-10 flex flex-col space-y-2">
+        <span
+          className={`text-base font-semibold transition-all duration-300 ${
+            isActive ? "text-blue-900" : "text-gray-800 hover:text-blue-500"
+          }`}
+        >
+          {section.name}
+        </span>
+        {isActive && <span className="text-sm text-gray-600">{section.subtitle}</span>}
+      </div>
+    </li>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10">
@@ -80,52 +109,25 @@ const Path: React.FC<PathProps> = ({ courseData }) => {
       </h2>
 
       <div className="flex flex-col md:flex-row w-full max-w-6xl mx-auto gap-8 p-4">
-        {/* Left Timeline Section */}
-        <div className="flex-1 bg-white shadow-md p-6 rounded-lg">
+        <div className="flex-1 bg-white shadow-md rounded-lg p-6">
           <div className="relative">
-            <div className="absolute left-2 top-0 h-full w-0.5 bg-blue-500 transition-all duration-300"></div>
+            <div className="absolute left-2 top-0 h-full w-0.5 bg-blue-500" />
             {error ? (
-              <div className="text-red-500 text-center">{error}</div>
+              <div className="text-red-500 text-center p-4">{error}</div>
             ) : (
               <ul className="relative space-y-8 pl-6">
                 {sections.map((section, idx) => (
-                  <li
+                  <TimelineItem
                     key={idx}
-                    onClick={() => handleTitleClick(idx)}
-                    className={`relative cursor-pointer ${
-                      activeIndex === idx ? "text-blue-900 bg-blue-100 rounded-lg p-4" : "text-gray-800"
-                    }`}
-                  >
-                    {/* Dot */}
-                    <div
-                      className={`absolute left-[-14px] h-2 w-2 rounded-full top-5 transition-all duration-300 ${
-                        activeIndex === idx ? "bg-blue-500" : "bg-gray-400"
-                      }`}
-                    ></div>
-
-                    {/* Title */}
-                    <div className="ml-10 flex flex-col space-y-2">
-                      <span
-                        className={`text-base font-semibold transition-all duration-300 ${
-                          activeIndex === idx ? "text-blue-900" : "text-gray-800 hover:text-blue-500"
-                        }`}
-                      >
-                        {section.name}
-                      </span>
-
-                      {/* Subtitle+ */}
-                      {activeIndex === idx && (
-                        <span className="text-sm text-gray-600">{section.subtitle}</span>
-                      )}
-                    </div>
-                  </li>
+                    section={section}
+                    isActive={activeIndex === idx}
+                    onClick={() => setActiveIndex(activeIndex === idx ? null : idx)}
+                  />
                 ))}
               </ul>
             )}
           </div>
         </div>
-
-        {/* Right-Side Content */}
         <div className="w-full md:w-1/3 space-y-6">
           <div className="bg-white shadow-md p-6 rounded-lg text-center">
             <h3 className="text-lg font-bold text-blue-500 mb-4">Contact Us</h3>
@@ -168,7 +170,7 @@ const Path: React.FC<PathProps> = ({ courseData }) => {
           </div>
         </div>
       </div>
-
+        
       <style jsx>{`
         @keyframes gradientAnimation {
           0% {
@@ -187,6 +189,7 @@ const Path: React.FC<PathProps> = ({ courseData }) => {
           animation: gradientAnimation 3s linear infinite;
         }
       `}</style>
+
     </div>
   );
 };

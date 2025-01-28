@@ -15,7 +15,7 @@ const ScrollingImages: React.FC = () => {
   const repeatedImages = [...images, ...images, ...images];
 
   return (
-    <div className="overflow-hidden bg-white-100 m-0 p-0 relative"> {/* Removed py-4 */}
+    <div className="overflow-hidden m-0 p-0 relative"> {/* Removed py-4 */}
       <div className="flex animate-scroll">
         {repeatedImages.map((image, index) => (
           <div key={index} className="flex-shrink-0 w-32 h-32 mx-4">
